@@ -4,6 +4,11 @@
 server/.env
 /node_modules/
 
-# React Router
+# Client
+/client/node_modules/
+/client/.react-router/
+/client/build/
+
+# React Router (legacy root paths)
 /.react-router/
 /build/

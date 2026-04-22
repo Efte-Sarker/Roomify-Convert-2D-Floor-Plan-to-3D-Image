@@ -1,3 +1,5 @@
+import "./env.js";
+
 import path from "path";
 import { fileURLToPath } from "url";
 import express from "express";

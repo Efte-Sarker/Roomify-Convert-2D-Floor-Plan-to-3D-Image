@@ -78,9 +78,9 @@ QUALITY: Professional architectural visualization. Clean, crisp, no labels, no w
 `.trim();
 
 // Current working model for multimodal generation
-const GEMINI_MODEL   = 'gemini-3-pro-image-preview';
+const GEMINI_MODEL = 'gemini-3-pro-image-preview';
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
-const TIMEOUT_MS     = 120_000; // 2 minutes
+const TIMEOUT_MS = 120_000; // 2 minutes
 
 // POST /api/render — generate a photorealistic 3D render from a 2D floor plan
 router.post('/', authMiddleware, async (req, res) => {
@@ -139,9 +139,9 @@ router.post('/', authMiddleware, async (req, res) => {
       }
 
       const commaIndex = sourceImage.indexOf(',');
-      const meta       = sourceImage.slice(0, commaIndex);
+      const meta = sourceImage.slice(0, commaIndex);
       const base64Data = sourceImage.slice(commaIndex + 1);
-      const mimeType   = meta.split(';')[0].split(':')[1];
+      const mimeType = meta.split(';')[0].split(':')[1];
 
       console.log(`[render] generic image-to-image | user=${req.user?.id} | mime=${mimeType}`);
       requestParts = [
@@ -152,7 +152,7 @@ router.post('/', authMiddleware, async (req, res) => {
 
     // ── Call Gemini ───────────────────────────────────────────────────────────
     const controller = new AbortController();
-    const timeoutId  = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
     let geminiResponse;
     try {
@@ -160,7 +160,7 @@ router.post('/', authMiddleware, async (req, res) => {
         method: 'POST',
         signal: controller.signal,
         headers: {
-          'Content-Type':   'application/json',
+          'Content-Type': 'application/json',
           'x-goog-api-key': apiKey,
         },
         body: JSON.stringify({
@@ -190,8 +190,8 @@ router.post('/', authMiddleware, async (req, res) => {
 
     // ── Parse response ────────────────────────────────────────────────────────
     const geminiData = await geminiResponse.json();
-    const parts      = geminiData?.candidates?.[0]?.content?.parts ?? [];
-    const imagePart  = parts.find(p => !p.thought && (p.inlineData || p.inline_data));
+    const parts = geminiData?.candidates?.[0]?.content?.parts ?? [];
+    const imagePart = parts.find(p => !p.thought && (p.inlineData || p.inline_data));
 
     if (!imagePart) {
       const textPart = parts.find(p => !p.thought && p.text);
@@ -200,8 +200,8 @@ router.post('/', authMiddleware, async (req, res) => {
       return res.status(502).json({ error: 'Gemini did not return an image. Try again or simplify the floor plan.' });
     }
 
-    const imageData     = imagePart.inlineData || imagePart.inline_data;
-    const outMimeType   = imageData.mimeType || imageData.mime_type || 'image/png';
+    const imageData = imagePart.inlineData || imagePart.inline_data;
+    const outMimeType = imageData.mimeType || imageData.mime_type || 'image/png';
     const renderedImage = `data:${outMimeType};base64,${imageData.data}`;
 
     console.log(`[render] success | user=${req.user?.id} | outputMimeType=${outMimeType}`);
